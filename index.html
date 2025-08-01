@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agentic AI Quiz App</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #2b1055, #7597de);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .quiz-container {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 2rem;
+      border-radius: 1rem;
+      width: 90%;
+      max-width: 800px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    }
+    h1 {
+      text-align: center;
+      color: #00f7ff;
+      margin-top: 0;
+    }
+    .start-screen, .quiz-screen, .end-screen, .review-screen {
+      display: none;
+    }
+    .start-screen.active, .quiz-screen.active, .end-screen.active, .review-screen.active {
+      display: block;
+    }
+    .timer-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding: 0.5rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 0.5rem;
+    }
+    .timer {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #ffcc00;
+    }
+    .question-counter {
+      font-size: 1.1rem;
+      color: #00f7ff;
+    }
+    .question {
+      font-size: 1.3rem;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .options button {
+      display: block;
+      width: 100%;
+      margin: 0.7rem 0;
+      padding: 0.9rem;
+      border: none;
+      border-radius: 0.5rem;
+      background: #00c3ff;
+      color: #000;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+      text-align: left;
+    }
+    .options button:hover {
+      background: #00f7ff;
+      transform: translateY(-2px);
+    }
+    .options button.selected {
+      background: #0099cc;
+      color: #fff;
+    }
+    .navigation {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1.5rem;
+    }
+    .btn {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+    .btn-primary {
+      background: #ff9900;
+      color: #000;
+    }
+    .btn-primary:hover {
+      background: #ffcc00;
+    }
+    .btn-secondary {
+      background: #00c3ff;
+      color: #000;
+    }
+    .btn-secondary:hover {
+      background: #00f7ff;
+    }
+    .btn-success {
+      background: #00cc66;
+      color: #000;
+    }
+    .btn-success:hover {
+      background: #00ff88;
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .result {
+      text-align: center;
+      font-size: 1.5rem;
+      margin: 2rem 0;
+    }
+    .score-details {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 1.5rem;
+      border-radius: 0.5rem;
+      margin: 1.5rem 0;
+    }
+    .review-item {
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      background: rgba(0, 0, 0, 0.2);
+    }
+    .review-question {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    .review-options {
+      margin-left: 1rem;
+    }
+    .review-option {
+      margin: 0.3rem 0;
+    }
+    .correct {
+      color: #00ff88;
+    }
+    .incorrect {
+      color: #ff5555;
+    }
+    .start-info {
+      text-align: center;
+      margin: 2rem 0;
+      line-height: 1.6;
+    }
+    .start-info h2 {
+      color: #00f7ff;
+    }
+    .start-info p {
+      margin: 1rem 0;
+    }
+    .icon {
+      font-size: 3rem;
+      text-align: center;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <!-- Start Screen -->
+    <div class="start-screen active">
+      <h1>Agentic AI Quiz</h1>
+      <div class="icon">🤖</div>
+      <div class="start-info">
+        <h2>Welcome to the Agentic AI Quiz!</h2>
+        <p>Test your knowledge about Agentic AI and OpenAI's SDK with this comprehensive quiz.</p>
+        <p><strong>Quiz Details:</strong></p>
+        <ul style="text-align: left; display: inline-block;">
+          <li>70 questions total</li>
+          <li>70 minutes time limit</li>
+          <li>Multiple choice format</li>
+          <li>No immediate feedback on answers</li>
+        </ul>
+        <p>Click the button below to start the quiz. Good luck!</p>
+      </div>
+      <div style="text-align: center;">
+        <button class="btn btn-primary" onclick="startQuiz()">Start Quiz</button>
+      </div>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div class="quiz-screen">
+      <div class="timer-container">
+        <div class="timer" id="timer">70:00</div>
+        <div class="question-counter" id="question-counter">Question 1 of 70</div>
+      </div>
+      <div class="question" id="question">Loading...</div>
+      <div class="options" id="options"></div>
+      <div class="navigation">
+        <button class="btn btn-secondary" id="prev-btn" onclick="prevQuestion()" disabled>Previous</button>
+        <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()" disabled>Next</button>
+      </div>
+    </div>
+
+    <!-- End Screen -->
+    <div class="end-screen">
+      <h1>Quiz Completed!</h1>
+      <div class="result" id="result">Calculating your score...</div>
+      <div class="score-details" id="score-details"></div>
+      <div style="text-align: center;">
+        <button class="btn btn-success" onclick="showReview()">Review Answers</button>
+        <button class="btn btn-primary" onclick="restartQuiz()">Restart Quiz</button>
+      </div>
+    </div>
+
+    <!-- Review Screen -->
+    <div class="review-screen">
+      <h1>Answer Review</h1>
+      <div id="review-container"></div>
+      <div style="text-align: center; margin-top: 1.5rem;">
+        <button class="btn btn-primary" onclick="restartQuiz()">Restart Quiz</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      // Original 50 questions
+      {
+        "question": "What is an Agent in the context of Agentic AI?",
+        "options": [
+          "A type of database",
+          "A software entity that perceives and acts",
+          "A security protocol",
+          "A form of machine translation"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "Which OpenAI model is best suited for complex reasoning tasks in Agentic AI?",
+        "options": [
+          "GPT-3.5",
+          "DALL-E",
+          "GPT-4",
+          "Whisper"
+        ],
+        "answer": 2
+      },
+      {
+        "question": "What is the primary purpose of the 'temperature' parameter in OpenAI's API?",
+        "options": [
+          "Control response length",
+          "Adjust randomness of output",
+          "Set processing speed",
+          "Define token limits"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "In Agentic AI, what does 'PEAS' stand for?",
+        "options": [
+          "Performance, Environment, Actuators, Sensors",
+          "Process, Execution, Algorithm, System",
+          "Protocol, Encryption, Authentication, Security",
+          "Perception, Evaluation, Action, State"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "Which OpenAI SDK method would you use to create embeddings?",
+        "options": [
+          "openai.ChatCompletion.create()",
+          "openai.Image.create()",
+          "openai.Embedding.create()",
+          "openai.Audio.transcribe()"
+        ],
+        "answer": 2
+      },
+      {
+        "question": "What is a key characteristic of a 'reflex agent' in Agentic AI?",
+        "options": [
+          "Plans for future actions",
+          "Maintains internal state",
+          "Responds only to current percepts",
+          "Learns from experience"
+        ],
+        "answer": 2
+      },
+      {
+        "question": "Which OpenAI model is specifically designed for image generation?",
+        "options": [
+          "GPT-4",
+          "Codex",
+          "DALL-E",
+          "CLIP"
+        ],
+        "answer": 2
+      },
+      {
+        "question": "In OpenAI's API, what does the 'max_tokens' parameter control?",
+        "options": [
+          "Maximum cost per request",
+          "Maximum number of tokens in response",
+          "Maximum allowed requests per minute",
+          "Maximum model size"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "What is the main advantage of using 'function calling' in OpenAI's API?",
+        "options": [
+          "Reduces API costs",
+          "Enables structured data extraction",
+          "Improves response speed",
+          "Increases token limits"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "Which type of agent maintains a history of past percepts?",
+        "options": [
+          "Simple reflex agent",
+          "Model-based reflex agent",
+          "Goal-based agent",
+          "Utility-based agent"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "What is the purpose of OpenAI's 'moderations' endpoint?",
+        "options": [
+          "Content filtering",
+          "Model training",
+          "User authentication",
+          "Rate limiting"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "In Agentic AI, what is 'exploration vs exploitation' dilemma?",
+        "options": [
+          "Choosing between local and cloud deployment",
+          "Balancing new actions vs known rewarding actions",
+          "Deciding between supervised and unsupervised learning",
+          "Selecting between different AI frameworks"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "Which OpenAI SDK parameter helps prevent repetitive responses?",
+        "options": [
+          "Temperature",
+          "Frequency penalty",
+          "Presence penalty",
+          "Top P"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "What is a 'goal-based agent' in Agentic AI?",
+        "options": [
+          "Agent that maximizes utility",
+          "Agent that follows fixed rules",
+          "Agent that plans actions to achieve goals",
+          "Agent that learns from rewards"
+        ],
+        "answer": 2
+      },
+      {
+        "question": "Which OpenAI model is optimized for code generation?",
+        "options": [
+          "GPT-4",
+          "Codex",
+          "DALL-E",
+          "Whisper"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "What does the 'stop' parameter do in OpenAI's API?",
+        "options": [
+          "Stops the API service",
+          "Halts generation at specified sequence",
+          "Terminates long-running processes",
+          "Prevents model training"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "In Agentic AI, what is 'percept'?",
+        "options": [
+          "Agent's goal",
+          "Agent's action",
+          "Agent's sensory input",
+          "Agent's internal model"
+        ],
+        "answer": 2
+      },
+      {
+        "question": "Which OpenAI SDK method is used for chat completions?",
+        "options": [
+          "openai.Completion.create()",
+          "openai.ChatCompletion.create()",
+          "openai.Conversation.create()",
+          "openai.Message.create()"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "What is the primary function of a 'utility-based agent'?",
+        "options": [
+          "Follow predefined rules",
+          "Maximize a performance measure",
+          "Achieve specific goals",
+          "Learn from environment"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "Which OpenAI parameter controls the diversity of token selection?",
+        "options": [
+          "Temperature",
+          "Top P",
+          "Frequency penalty",
+          "Max tokens"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "What is 'reinforcement learning' in Agentic AI?",
+        "options": [
+          "Learning from labeled data",
+          "Learning through rewards and penalties",
+          "Learning by imitation",
+          "Learning without any feedback"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "Which OpenAI model is designed for speech-to-text tasks?",
+        "options": [
+          "GPT-4",
+          "DALL-E",
+          "Whisper",
+          "CLIP"
+        ],
+        "answer": 2
+      },
+      {
+        "question": "What does the 'n' parameter control in OpenAI's API?",
+        "options": [
+          "Number of users",
+          "Number of completions to generate",
+          "Number of tokens",
+          "Number of models"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "In Agentic AI, what is 'actuator'?",
+        "options": [
+          "Agent's decision-making component",
+          "Agent's sensory device",
+          "Agent's action mechanism",
+          "Agent's learning algorithm"
+        ],
+        "answer": 2
+      },
+      {
+        "question": "Which OpenAI SDK method would you use to fine-tune a model?",
+        "options": [
+          "openai.FineTune.create()",
+          "openai.Model.train()",
+          "openai.Training.create()",
+          "openai.Adapt.create()"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "What is 'prompt engineering' in the context of OpenAI SDK?",
+        "options": [
+          "Designing physical AI hardware",
+          "Creating effective input prompts",
+          "Developing AI algorithms",
+          "Optimizing cloud infrastructure"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "Which type of agent uses internal models to track world state?",
+        "options": [
+          "Simple reflex agent",
+          "Model-based reflex agent",
+          "Goal-based agent",
+          "Utility-based agent"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "What is the purpose of OpenAI's 'edit' endpoint?",
+        "options": [
+          "Modify existing text",
+          "Create new images",
+          "Transcribe audio",
+          "Generate embeddings"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "In Agentic AI, what is 'Markov Decision Process'?",
+        "options": [
+          "A type of neural network",
+          "A framework for decision-making",
+          "A data preprocessing technique",
+          "A model evaluation metric"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "Which OpenAI parameter helps prevent mentioning specific topics?",
+        "options": [
+          "Temperature",
+          "Frequency penalty",
+          "Presence penalty",
+          "Logit bias"
+        ],
+        "answer": 3
+      },
+      {
+        "question": "What is 'multi-agent system' in Agentic AI?",
+        "options": [
+          "System with multiple AI models",
+          "System where multiple agents interact",
+          "System with multiple environments",
+          "System with multiple objectives"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "Which OpenAI SDK method retrieves information about available models?",
+        "options": [
+          "openai.Model.list()",
+          "openai.Model.retrieve()",
+          "openai.Models.info()",
+          "openai.Models.available()"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "What is the primary purpose of 'system role' in OpenAI chat API?",
+        "options": [
+          "Set user authentication",
+          "Define model behavior",
+          "Control response length",
+          "Manage API quotas"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "In Agentic AI, what is 'policy'?",
+        "options": [
+          "Agent's goal",
+          "Agent's action selection strategy",
+          "Agent's learning rate",
+          "Agent's sensory input"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "Which OpenAI model is designed for text-to-image generation?",
+        "options": [
+          "GPT-4",
+          "Codex",
+          "DALL-E 3",
+          "Whisper"
+        ],
+        "answer": 2
+      },
+      {
+        "question": "What does the 'logprobs' parameter provide in OpenAI's API?",
+        "options": [
+          "Processing time statistics",
+          "Log probabilities of tokens",
+          "Error logs",
+          "API usage logs"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "What is 'Q-learning' in Agentic AI?",
+        "options": [
+          "A supervised learning algorithm",
+          "A reinforcement learning technique",
+          "A clustering method",
+          "A dimensionality reduction technique"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "Which OpenAI SDK method deletes a fine-tuned model?",
+        "options": [
+          "openai.Model.delete()",
+          "openai.FineTune.delete()",
+          "openai.Model.remove()",
+          "openai.FineTune.cancel()"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "What is 'RAG' (Retrieval-Augmented Generation) in Agentic AI?",
+        "options": [
+          "A type of neural network",
+          "A technique combining retrieval and generation",
+          "A reinforcement learning algorithm",
+          "A model compression method"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "Which OpenAI parameter controls the cost-performance tradeoff?",
+        "options": [
+          "Model selection",
+          "Temperature",
+          "Max tokens",
+          "Top P"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "In Agentic AI, what is 'sensor'?",
+        "options": [
+          "Agent's decision-making component",
+          "Agent's action mechanism",
+          "Agent's sensory input device",
+          "Agent's learning algorithm"
+        ],
+        "answer": 2
+      },
+      {
+        "question": "Which OpenAI SDK method transcribes audio files?",
+        "options": [
+          "openai.Audio.translate()",
+          "openai.Audio.transcribe()",
+          "openai.Whisper.transcribe()",
+          "openai.Speech.toText()"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "What is 'zero-shot prompting' in OpenAI context?",
+        "options": [
+          "Prompting without examples",
+          "Prompting with negative examples",
+          "Prompting with maximum tokens",
+          "Prompting at zero temperature"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "Which type of agent evaluates actions based on expected outcomes?",
+        "options": [
+          "Simple reflex agent",
+          "Model-based reflex agent",
+          "Goal-based agent",
+          "Utility-based agent"
+        ],
+        "answer": 2
+      },
+      {
+        "question": "What is the purpose of OpenAI's 'files' endpoint?",
+        "options": [
+          "Manage file uploads for fine-tuning",
+          "Access model files",
+          "Download generated content",
+          "Manage API documentation"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "In Agentic AI, what is 'partially observable environment'?",
+        "options": [
+          "Environment with limited sensors",
+          "Environment where agent has full access to state",
+          "Environment that changes randomly",
+          "Environment with multiple agents"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "Which OpenAI parameter controls response creativity?",
+        "options": [
+          "Max tokens",
+          "Temperature",
+          "Top P",
+          "Frequency penalty"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "What is 'few-shot prompting' in OpenAI context?",
+        "options": [
+          "Prompting with minimal examples",
+          "Prompting with many examples",
+          "Prompting with negative examples",
+          "Prompting without examples"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "Which OpenAI SDK method creates image variations?",
+        "options": [
+          "openai.Image.create_variation()",
+          "openai.Image.variate()",
+          "openai.DALL-E.variation()",
+          "openai.Image.edit()"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "In Agentic AI, what is 'stochastic environment'?",
+        "options": [
+          "Environment with deterministic outcomes",
+          "Environment with random elements",
+          "Environment that doesn't change",
+          "Environment with single agent"
+        ],
+        "answer": 1
+      },
+      
+      // Additional 20 questions
+      {
+        "question": "What is the primary function of OpenAI's 'Assistants API'?",
+        "options": [
+          "Generate images",
+          "Create purpose-built AI assistants",
+          "Transcribe audio",
+          "Fine-tune models"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "In Agentic AI, what does 'BFS' stand for in pathfinding algorithms?",
+        "options": [
+          "Best First Search",
+          "Breadth-First Search",
+          "Binary Function Search",
+          "Backward Forward Search"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "Which OpenAI model is designed for text-to-speech conversion?",
+        "options": [
+          "Whisper",
+          "DALL-E",
+          "TTS",
+          "Codex"
+        ],
+        "answer": 2
+      },
+      {
+        "question": "What is 'temporal difference learning' in Agentic AI?",
+        "options": [
+          "Learning from time-series data",
+          "Combining Monte Carlo and dynamic programming",
+          "Learning with delayed rewards",
+          "Time-based model training"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "Which OpenAI parameter controls response diversity?",
+        "options": [
+          "Temperature",
+          "Top P",
+          "Frequency penalty",
+          "Presence penalty"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "In Agentic AI, what is 'A* search'?",
+        "options": [
+          "A sorting algorithm",
+          "A pathfinding algorithm",
+          "A classification method",
+          "A clustering technique"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "What is the purpose of OpenAI's 'Batch API'?",
+        "options": [
+          "Process multiple requests asynchronously",
+          "Train models in batches",
+          "Handle large datasets",
+          "Manage concurrent users"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "Which type of agent uses utility functions to make decisions?",
+        "options": [
+          "Simple reflex agent",
+          "Model-based agent",
+          "Goal-based agent",
+          "Utility-based agent"
+        ],
+        "answer": 3
+      },
+      {
+        "question": "What does 'RLHF' stand for in OpenAI's model training?",
+        "options": [
+          "Reinforcement Learning from Human Feedback",
+          "Recurrent Language with Human Features",
+          "Reinforced Learning with Heuristics",
+          "Recursive Language and Heuristic Framework"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "In Agentic AI, what is 'alpha-beta pruning'?",
+        "options": [
+          "A tree search optimization technique",
+          "A neural network pruning method",
+          "A data preprocessing step",
+          "A model compression technique"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "Which OpenAI model is optimized for chatbot applications?",
+        "options": [
+          "GPT-4",
+          "DALL-E",
+          "Whisper",
+          "CLIP"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "What is 'policy gradient' in reinforcement learning?",
+        "options": [
+          "A method to directly optimize the policy",
+          "A technique for gradient descent",
+          "A way to evaluate policies",
+          "A model initialization method"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "Which OpenAI SDK method creates chat completions with streaming?",
+        "options": [
+          "openai.ChatCompletion.create()",
+          "openai.ChatCompletion.stream()",
+          "openai.ChatCompletion.create({ stream: true })",
+          "openai.Stream.chat()"
+        ],
+        "answer": 2
+      },
+      {
+        "question": "In Agentic AI, what is 'value iteration'?",
+        "options": [
+          "An algorithm to compute optimal policy",
+          "A method to iterate through values",
+          "A data validation technique",
+          "A model evaluation metric"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "What is the purpose of OpenAI's 'Moderation' API?",
+        "options": [
+          "Check content for policy violations",
+          "Moderate user access",
+          "Control model behavior",
+          "Manage API quotas"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "Which technique helps prevent 'catastrophic forgetting' in neural networks?",
+        "options": [
+          "Dropout",
+          "Regularization",
+          "Elastic Weight Consolidation",
+          "Batch normalization"
+        ],
+        "answer": 2
+      },
+      {
+        "question": "In Agentic AI, what is 'Monte Carlo Tree Search'?",
+        "options": [
+          "A heuristic search algorithm",
+          "A random sampling technique",
+          "A decision tree method",
+          "A probabilistic planning algorithm"
+        ],
+        "answer": 3
+      },
+      {
+        "question": "Which OpenAI parameter controls response length?",
+        "options": [
+          "Temperature",
+          "Max tokens",
+          "Top P",
+          "Frequency penalty"
+        ],
+        "answer": 1
+      },
+      {
+        "question": "What is 'transfer learning' in Agentic AI?",
+        "options": [
+          "Transferring knowledge between tasks",
+          "Learning from transferred data",
+          "Transferring models between devices",
+          "Learning with transfer functions"
+        ],
+        "answer": 0
+      },
+      {
+        "question": "Which OpenAI model is designed for text-to-3D generation?",
+        "options": [
+          "DALL-E 3",
+          "Point-E",
+          "Shap-E",
+          "CLIP"
+        ],
+        "answer": 2
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let userAnswers = new Array(questions.length).fill(null);
+    let timeRemaining = 70 * 60; // 70 minutes in seconds
+    let timerInterval;
+    let quizStarted = false;
+
+    function startQuiz() {
+      document.querySelector('.start-screen').classList.remove('active');
+      document.querySelector('.quiz-screen').classList.add('active');
+      quizStarted = true;
+      startTimer();
+      showQuestion();
+    }
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        timeRemaining--;
+        updateTimerDisplay();
+        
+        if (timeRemaining <= 0) {
+          clearInterval(timerInterval);
+          endQuiz();
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const minutes = Math.floor(timeRemaining / 60);
+      const seconds = timeRemaining % 60;
+      document.getElementById('timer').textContent = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function showQuestion() {
+      const q = questions[currentQuestion];
+      document.getElementById("question").textContent = `Q${currentQuestion + 1}. ${q.question}`;
+      document.getElementById("question-counter").textContent = 
+        `Question ${currentQuestion + 1} of ${questions.length}`;
+      
+      const optionsDiv = document.getElementById("options");
+      optionsDiv.innerHTML = "";
+      
+      q.options.forEach((opt, index) => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.onclick = () => selectAnswer(index);
+        
+        // If user already answered this question, mark it as selected
+        if (userAnswers[currentQuestion] === index) {
+          btn.classList.add("selected");
+        }
+        
+        optionsDiv.appendChild(btn);
+      });
+      
+      // Update navigation buttons
+      document.getElementById("prev-btn").disabled = currentQuestion === 0;
+      document.getElementById("next-btn").disabled = userAnswers[currentQuestion] === null;
+      
+      // Change next button text on last question
+      if (currentQuestion === questions.length - 1) {
+        document.getElementById("next-btn").textContent = "Finish";
+      } else {
+        document.getElementById("next-btn").textContent = "Next";
+      }
+    }
+
+    function selectAnswer(index) {
+      userAnswers[currentQuestion] = index;
+      
+      // Update button styles
+      const buttons = document.querySelectorAll(".options button");
+      buttons.forEach((btn, i) => {
+        btn.classList.remove("selected");
+        if (i === index) {
+          btn.classList.add("selected");
+        }
+      });
+      
+      // Enable next button
+      document.getElementById("next-btn").disabled = false;
+    }
+
+    function nextQuestion() {
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        showQuestion();
+      } else {
+        endQuiz();
+      }
+    }
+
+    function prevQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        showQuestion();
+      }
+    }
+
+    function endQuiz() {
+      clearInterval(timerInterval);
+      
+      // Calculate score
+      score = 0;
+      for (let i = 0; i < questions.length; i++) {
+        if (userAnswers[i] === questions[i].answer) {
+          score++;
+        }
+      }
+      
+      // Show end screen
+      document.querySelector('.quiz-screen').classList.remove('active');
+      document.querySelector('.end-screen').classList.add('active');
+      
+      // Display results
+      document.getElementById("result").textContent = 
+        `You scored ${score} out of ${questions.length}!`;
+      
+      const percentage = Math.round((score / questions.length) * 100);
+      let feedback = "";
+      if (percentage >= 90) {
+        feedback = "Excellent work! You have a strong understanding of Agentic AI.";
+      } else if (percentage >= 70) {
+        feedback = "Good job! You have a solid knowledge base with room for improvement.";
+      } else if (percentage >= 50) {
+        feedback = "Not bad! Consider reviewing some concepts to strengthen your understanding.";
+      } else {
+        feedback = "Keep studying! There's always room to learn and grow.";
+      }
+      
+      document.getElementById("score-details").innerHTML = `
+        <p><strong>Percentage:</strong> ${percentage}%</p>
+        <p><strong>Correct Answers:</strong> ${score}</p>
+        <p><strong>Incorrect Answers:</strong> ${questions.length - score}</p>
+        <p><strong>Unanswered:</strong> ${userAnswers.filter(a => a === null).length}</p>
+        <p><strong>Feedback:</strong> ${feedback}</p>
+      `;
+    }
+
+    function showReview() {
+      document.querySelector('.end-screen').classList.remove('active');
+      document.querySelector('.review-screen').classList.add('active');
+      
+      const reviewContainer = document.getElementById("review-container");
+      reviewContainer.innerHTML = "";
+      
+      questions.forEach((q, index) => {
+        const reviewItem = document.createElement("div");
+        reviewItem.className = "review-item";
+        
+        const userAnswerIndex = userAnswers[index];
+        const isCorrect = userAnswerIndex === q.answer;
+        const userAnswerText = userAnswerIndex !== null ? q.options[userAnswerIndex] : "Not answered";
+        const correctAnswerText = q.options[q.answer];
+        
+        reviewItem.innerHTML = `
+          <div class="review-question">Q${index + 1}. ${q.question}</div>
+          <div class="review-options">
+            <div class="review-option ${isCorrect ? 'correct' : 'incorrect'}">
+              Your answer: ${userAnswerText}
+            </div>
+            <div class="review-option correct">
+              Correct answer: ${correctAnswerText}
+            </div>
+          </div>
+        `;
+        
+        reviewContainer.appendChild(reviewItem);
+      });
+    }
+
+    function restartQuiz() {
+      // Reset all variables
+      currentQuestion = 0;
+      score = 0;
+      userAnswers = new Array(questions.length).fill(null);
+      timeRemaining = 70 * 60;
+      
+      // Clear timer if running
+      clearInterval(timerInterval);
+      
+      // Reset UI
+      document.querySelector('.review-screen').classList.remove('active');
+      document.querySelector('.end-screen').classList.remove('active');
+      document.querySelector('.start-screen').classList.add('active');
+      
+      // Reset timer display
+      updateTimerDisplay();
+    }
+
+    // Initialize the app
+    updateTimerDisplay();
+  </script>
+</body>
+</html>
