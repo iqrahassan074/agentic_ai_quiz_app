@@ -174,7 +174,7 @@
 </head>
 <body>
   <div class="quiz-container">
-    <!-- Start Screen -->
+   
     <div class="start-screen active">
       <h1>Agentic AI Quiz</h1>
       <div class="icon">🤖</div>
@@ -195,7 +195,7 @@
       </div>
     </div>
 
-    <!-- Quiz Screen -->
+   
     <div class="quiz-screen">
       <div class="timer-container">
         <div class="timer" id="timer">70:00</div>
@@ -209,7 +209,7 @@
       </div>
     </div>
 
-    <!-- End Screen -->
+    
     <div class="end-screen">
       <h1>Quiz Completed!</h1>
       <div class="result" id="result">Calculating your score...</div>
@@ -220,7 +220,7 @@
       </div>
     </div>
 
-    <!-- Review Screen -->
+    
     <div class="review-screen">
       <h1>Answer Review</h1>
       <div id="review-container"></div>
@@ -232,7 +232,7 @@
 
   <script>
     const questions = [
-      // Original 50 questions
+      
       {
         "question": "What is an Agent in the context of Agentic AI?",
         "options": [
@@ -984,20 +984,18 @@
         const btn = document.createElement("button");
         btn.textContent = opt;
         btn.onclick = () => selectAnswer(index);
-        
-        // If user already answered this question, mark it as selected
+       
         if (userAnswers[currentQuestion] === index) {
           btn.classList.add("selected");
         }
         
         optionsDiv.appendChild(btn);
       });
-      
-      // Update navigation buttons
+     
       document.getElementById("prev-btn").disabled = currentQuestion === 0;
       document.getElementById("next-btn").disabled = userAnswers[currentQuestion] === null;
       
-      // Change next button text on last question
+   
       if (currentQuestion === questions.length - 1) {
         document.getElementById("next-btn").textContent = "Finish";
       } else {
@@ -1008,7 +1006,7 @@
     function selectAnswer(index) {
       userAnswers[currentQuestion] = index;
       
-      // Update button styles
+     
       const buttons = document.querySelectorAll(".options button");
       buttons.forEach((btn, i) => {
         btn.classList.remove("selected");
@@ -1017,7 +1015,7 @@
         }
       });
       
-      // Enable next button
+ 
       document.getElementById("next-btn").disabled = false;
     }
 
@@ -1040,7 +1038,7 @@
     function endQuiz() {
       clearInterval(timerInterval);
       
-      // Calculate score
+    
       score = 0;
       for (let i = 0; i < questions.length; i++) {
         if (userAnswers[i] === questions[i].answer) {
@@ -1048,11 +1046,10 @@
         }
       }
       
-      // Show end screen
+    
       document.querySelector('.quiz-screen').classList.remove('active');
       document.querySelector('.end-screen').classList.add('active');
-      
-      // Display results
+    
       document.getElementById("result").textContent = 
         `You scored ${score} out of ${questions.length}!`;
       
@@ -1110,25 +1107,24 @@
     }
 
     function restartQuiz() {
-      // Reset all variables
+    
       currentQuestion = 0;
       score = 0;
       userAnswers = new Array(questions.length).fill(null);
       timeRemaining = 70 * 60;
       
-      // Clear timer if running
+      
       clearInterval(timerInterval);
       
-      // Reset UI
+
       document.querySelector('.review-screen').classList.remove('active');
       document.querySelector('.end-screen').classList.remove('active');
       document.querySelector('.start-screen').classList.add('active');
       
-      // Reset timer display
       updateTimerDisplay();
     }
 
-    // Initialize the app
+    
     updateTimerDisplay();
   </script>
 </body>
